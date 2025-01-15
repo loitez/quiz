@@ -38,8 +38,6 @@ export const TestHistoryPanel = ({index, item}) => {
                     }
                 </ProgressBar>
 
-                <ProgressBar striped variant="success" now={35} ></ProgressBar>
-
                 <div>Верно: {correctAnswers} из {answersCount}</div>
             </div>
         </div>
