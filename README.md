@@ -6,6 +6,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+## Инициализация бэка
+
+### npm run servr
+
+## Инициализация фронта
+
+### npm run dev
+
 ### `npm start`
 
 Runs the app in the development mode.\

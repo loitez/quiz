@@ -1,6 +1,6 @@
 import {Routes, Route, Router} from "react-router-dom";
 import styled from "styled-components";
-import {Main} from "./pages";
+import {Main, Test} from "./pages";
 
 const Page = styled.div`
     min-height: 100vh;
@@ -13,7 +13,7 @@ export const App = () => {
       <Page className="d-flex justify-content-center align-items-center">
           <Routes>
               <Route path="/" element={<Main/>}></Route>
-              <Route path="/test" element={<p>Прохождение</p>}></Route>
+              <Route path="/test" element={<Test/>}></Route>
               <Route path="/test/edit" element={<p>Редактирование</p>}></Route>
           </Routes>
       </Page>
