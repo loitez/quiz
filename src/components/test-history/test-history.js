@@ -1,19 +1,22 @@
 import {getQuestions} from "../../api";
 import {useEffect, useLayoutEffect, useState} from "react";
+import {TestHistoryPanel} from "../test-history-panel/test-history-panel";
 
 export const TestHistory = () => {
 
+    let testHistory = JSON.parse(localStorage.getItem("testHistory")) || [];
 
     return (
         <>
-            <div className="mb-2">История прохождений</div>
-            <div className="border border-black rounded rounded-4 d-flex justify-content-between p-3">
-                <div>01</div>
-                <div>Progress Bar</div>
+            <div className="mb-3">История прохождений</div>
+            {testHistory.length > 0 ? (
+                testHistory.map((item, index) => (
+                        <TestHistoryPanel key={index} index={index} item={item}/>
+                    ))
+            ) : (
+                <div>Нет истории теста</div>
+            )}
 
-
-                <div>Верно</div>
-            </div>
         </>
     )
 }

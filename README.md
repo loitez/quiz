@@ -8,7 +8,8 @@ In the project directory, you can run:
 
 ## Инициализация бэка
 
-### npm run servr
+### cd backend
+### npm run serve
 
 ## Инициализация фронта
 

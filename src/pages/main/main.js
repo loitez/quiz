@@ -11,7 +11,7 @@ const MainContainer = styled.div`
 export const Main = () => {
     return (
         <MainContainer className="d-flex flex-column justify-content-center">
-            <ButtonGroup aria-label="Basic example" className="mb-3 grid gap-0 column-gap-3">
+            <ButtonGroup aria-label="Basic example" className="mb-4 grid gap-0 column-gap-3">
                 <Link to="/test" className="w-100">
                     <Button variant="outline-dark" className="me-2 w-100">Запустить тест</Button>
                 </Link>

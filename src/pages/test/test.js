@@ -14,23 +14,34 @@ export const Test = () => {
     const [questions, setQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [userAnswer, setUserAnswer] = useState({});
+    const [userAnswers, setUserAnswers] = useState([]);
     const [isEnded, setIsEnded] = useState(false);
+    const [hash, setHash] = useState('')
+    const [answersHistory, setAnswersHistory] = useState(JSON.parse(localStorage.getItem('testHistory')) || [])
+    const [correctAnswersCount, setCorrectAnswersCount] = useState(null)
 
     const navigate = useNavigate()
+
 
     useEffect(() => {
         getQuestions().then(({questions}) => {
             setQuestions(questions);
             setCurrentQuestion(questions[currentIndex])
         })
-        console.log(currentQuestion)
-        console.log('efffect')
+        const date = new Date();
+        setHash(date.toJSON().slice(0, 19).replace('T', '_'))
+
     }, []);
 
     const onNextClick = () => {
         if (currentIndex === questions.length - 1) {
             setIsEnded(true)
+            answersHistory.push({ session: hash, answers: userAnswers })
+            setAnswersHistory(answersHistory)
+            localStorage.setItem('testHistory', JSON.stringify(answersHistory))
+            countCorrectAnswers()
+            setHash('')
+            setUserAnswers([])
         }
 
         setCurrentIndex(currentIndex + 1);
@@ -42,9 +53,20 @@ export const Test = () => {
         setCurrentQuestion(questions[currentIndex - 1])
     }
 
-    const onAnswerChange = (value) => {
-        setUserAnswer(value)
-        console.log(value)
+    const onAnswerChange = (isCorrect, questionID) => {
+
+        const answer = userAnswers.find((element) => element.id === questionID)
+        if (answer) {
+            const index = userAnswers.indexOf(answer)
+            userAnswers[index].isCorrect = isCorrect
+            setUserAnswers(userAnswers)
+        } else {
+            userAnswers.push({
+                id: questionID,
+                isCorrect: isCorrect
+            })
+            setUserAnswers(userAnswers)
+        }
     }
 
     const startAgain = () => {
@@ -53,6 +75,10 @@ export const Test = () => {
         setIsEnded(false)
     }
 
+    const countCorrectAnswers = () => {
+        const correctAnswers = answersHistory.at(-1).answers.filter((item) => item.isCorrect === true).length
+        setCorrectAnswersCount(correctAnswers)
+    }
 
     return (
         <TestContainer className="d-flex flex-column mw-100">
@@ -61,7 +87,7 @@ export const Test = () => {
                 <>
                 <div className="mb-5">
                     <div>Правильных ответов:</div>
-                    <div>неизвестно/{questions.length}</div>
+                    <div>{correctAnswersCount}/{questions.length}</div>
                 </div>
                     <div aria-label="Basic example" className="d-grid mb-3 gap-0 column-gap-3 d-md-flex">
                         <Button variant="outline-dark" className="me-2 w-100" onClick={() => navigate('/')}>
