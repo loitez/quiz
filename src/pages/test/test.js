@@ -38,7 +38,7 @@ export const Test = () => {
     const debouncedSetQuestion = useMemo(() => debounce(setCurrentQuestion, 700), [])
     const debouncedSetDisabled = useMemo(() => debounce(setIsDisabled, 700),[])
 
-
+    let localHistory = JSON.parse(localStorage.getItem('testHistory'))
 
 
     useEffect(() => {
@@ -49,11 +49,12 @@ export const Test = () => {
             setIsLoading(false)
         })
 
-        let localHistory = JSON.parse(localStorage.getItem('testHistory'))
+
 
         if (localHistory) {
             setAnswersHistory(localHistory)
         }
+
 
 
         const date = new Date();
@@ -66,24 +67,29 @@ export const Test = () => {
             countCorrectAnswers()
             setHash('')
             setUserAnswers([])
+            return
         }
+        const userAnswer = localHistory.find((item) => item.session === hash)?.answers.find((answer) => answer.id === questions[currentIndex + 1]._id)?.value
 
+        if (!userAnswer) {
+            setIsChecked(false)
+            debouncedSetDisabled(false)
+        } else {
+            debouncedSetDisabled(true)
+        }
         setCurrentIndex(currentIndex + 1);
         debouncedSetQuestion(questions[currentIndex + 1])
         //setCurrentQuestion(questions[currentIndex + 1])
         //setIsChecked(false)
-        setIsChecked(false)
-        debouncedSetDisabled(false)
+
+
     }
 
     const onPrevClick = () => {
         setCurrentIndex(currentIndex - 1);
-        //setCurrentQuestion(questions[currentIndex - 1])
         debouncedSetQuestion(questions[currentIndex - 1])
         setIsChecked(true)
         debouncedSetDisabled(true)
-        //setUserAnswer[userAnswers[currentIndex - 1]]
-        const userAnswer = findUserAnswer(currentIndex - 1)
     }
 
     const findUserAnswer = (questionIndex) => {
@@ -126,6 +132,10 @@ export const Test = () => {
         setCurrentIndex(0);
         setCurrentQuestion(questions[0])
         setIsEnded(false)
+        setHash('')
+        setUserAnswers([])
+        setIsDisabled(false)
+        setIsChecked(false)
     }
 
     const countCorrectAnswers = () => {
