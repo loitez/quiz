@@ -37,6 +37,8 @@ export const Test = () => {
     const debouncedCheck = useMemo(() => debounce(setIsChecked, 100), [])
     const debouncedSetQuestion = useMemo(() => debounce(setCurrentQuestion, 700), [])
     const debouncedSetDisabled = useMemo(() => debounce(setIsDisabled, 700),[])
+    const debouncedSetCurrentIndex = useMemo(() => debounce(setCurrentIndex, 700), [])
+    const debouncedSetIsEnded = useMemo(() => debounce(setIsEnded, 700),[])
 
     let localHistory = JSON.parse(localStorage.getItem('testHistory'))
 
@@ -63,10 +65,12 @@ export const Test = () => {
 
     const onNextClick = () => {
         if (currentIndex === questions.length - 1) {
-            setIsEnded(true)
+            //setIsEnded(true)
+            debouncedSetIsEnded(true)
             countCorrectAnswers()
             setHash('')
             setUserAnswers([])
+            setIsChecked(false)
             return
         }
         const userAnswer = localHistory.find((item) => item.session === hash)?.answers.find((answer) => answer.id === questions[currentIndex + 1]._id)?.value
@@ -77,7 +81,9 @@ export const Test = () => {
         } else {
             debouncedSetDisabled(true)
         }
-        setCurrentIndex(currentIndex + 1);
+
+        debouncedSetCurrentIndex(currentIndex + 1)
+        //setCurrentIndex(currentIndex + 1);
         debouncedSetQuestion(questions[currentIndex + 1])
         //setCurrentQuestion(questions[currentIndex + 1])
         //setIsChecked(false)
@@ -90,10 +96,6 @@ export const Test = () => {
         debouncedSetQuestion(questions[currentIndex - 1])
         setIsChecked(true)
         debouncedSetDisabled(true)
-    }
-
-    const findUserAnswer = (questionIndex) => {
-        return userAnswers[questionIndex]
     }
 
     const onAnswerChange = (isCorrect, questionID, answerValue) => {

@@ -35,3 +35,8 @@ code {
 .progress-bar-panel:hover + .progress-bar-tooltip {
   display: block;
 }
+.img-not-found {
+  height: 250px;
+  margin: 0 auto;
+  display: block;
+}

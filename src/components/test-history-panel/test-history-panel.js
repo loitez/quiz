@@ -19,7 +19,9 @@ export const TestHistoryPanel = ({index, item}) => {
 
     return (
         <div>
-            <div className="border border-black rounded rounded-4 d-flex justify-content-between align-items-center p-3 mb-3">
+            <div className="mb-3 fw-semibold">История прохождений</div>
+            <div
+                className="border border-black rounded rounded-4 d-flex justify-content-between align-items-center p-3 mb-3">
                 <div className="date-info">
                     <div>{date}</div>
                     <div className="text-small">{time}</div>
@@ -34,7 +36,8 @@ export const TestHistoryPanel = ({index, item}) => {
                             ))
                         }
                     </ProgressBar>
-                    <div className="progress-bar-tooltip border border-black rounded-3 bg-white py-1 px-2">Пройдено: {answersCount} из {questionsCount}</div>
+                    <div
+                        className="progress-bar-tooltip border border-black rounded-3 bg-white py-1 px-2">Пройдено: {answersCount} из {questionsCount}</div>
                     {questionsCount}
                 </div>
 
