@@ -22,7 +22,7 @@ export const Test = () => {
     const [userAnswers, setUserAnswers] = useState([]); // массив ответов юзера, заполняется постепенно
 
 
-    // const [answersHistory, setAnswersHistory] = useState([]) localHistory вместо, пока работает
+    const [answersHistory, setAnswersHistory] = useState([])
     const [correctAnswersCount, setCorrectAnswersCount] = useState(null) // TODO: мб убрать?
     const [questionsCount, setQuestionsCount] = useState(null)
     const [userAnswer, setUserAnswer] = useState(null)
@@ -38,7 +38,7 @@ export const Test = () => {
     const debouncedSetQuestion = useMemo(() => debounce(setCurrentQuestion, 700), [])
     const debouncedSetDisabled = useMemo(() => debounce(setIsDisabled, 700),[])
 
-    let localHistory = JSON.parse(localStorage.getItem('testHistory'))
+
 
 
     useEffect(() => {
@@ -48,6 +48,12 @@ export const Test = () => {
             setQuestionsCount(questions.length)
             setIsLoading(false)
         })
+
+        let localHistory = JSON.parse(localStorage.getItem('testHistory'))
+
+        if (localHistory) {
+            setAnswersHistory(localHistory)
+        }
 
 
         const date = new Date();
@@ -95,22 +101,22 @@ export const Test = () => {
         }
         setUserAnswers(userAnswers)
 
-        if (localHistory?.length > 0) {
-            const session = localHistory.find((history) => history.session === hash)
+        if (answersHistory.length > 0) {
+            const session = answersHistory.find((history) => history.session === hash)
             if (session) {
-                const index = localHistory.indexOf(session)
-                localHistory[index].answers = userAnswers
+                const index = answersHistory.indexOf(session)
+                answersHistory[index].answers = userAnswers
             } else {
-                localHistory.push({session: hash, answers: userAnswers, questionsCount: questionsCount})
+                answersHistory.push({session: hash, answers: userAnswers, questionsCount: questionsCount})
             }
 
-            //setAnswersHistory(answersHistory)
+            setAnswersHistory(answersHistory)
         } else {
-            localHistory = {session: hash, answers: userAnswers, questionsCount: questionsCount}
-            //setAnswersHistory(answersHistory)
+            answersHistory.push({session: hash, answers: userAnswers, questionsCount: questionsCount})
+            setAnswersHistory(answersHistory)
         }
 
-        localStorage.setItem('testHistory', JSON.stringify(localHistory))
+        localStorage.setItem('testHistory', JSON.stringify(answersHistory))
 
         setIsDisabled(true)
         debouncedCheck(true)
@@ -123,7 +129,7 @@ export const Test = () => {
     }
 
     const countCorrectAnswers = () => {
-        const correctAnswers = localHistory.answers.filter((item) => item.isCorrect === true).length
+        const correctAnswers = answersHistory.at(-1).answers.filter((item) => item.isCorrect === true).length
         setCorrectAnswersCount(correctAnswers)
     }
 
