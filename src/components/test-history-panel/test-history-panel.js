@@ -1,44 +1,45 @@
 import {ProgressBar} from "react-bootstrap";
+import {useContext, useEffect} from "react";
 
 
 export const TestHistoryPanel = ({index, item}) => {
 
-    console.log(item)
-
-    const date = `${item.session.slice(8,10)}.${item.session.slice(5,7)}.${item.session.slice(0,4)}`
-    const time = item.session.slice(11,19)
+    const date = item.session.split(', ')[0]
+    const time = item.session.split(', ')[1]
 
     const answers = item.answers;
 
     const correctAnswers = item.answers.filter((answer) => answer.isCorrect === true).length
     const answersCount = item.answers.length
 
-    const progressBarSeparator = 100 / answersCount
+    const questionsCount = item.questionsCount;
 
+    const progressBarSeparator = 100 / questionsCount
 
-    /*const renderProgressBar = () => {
-        return (
-
-        )
-    }*/
 
     return (
         <div>
             <div className="border border-black rounded rounded-4 d-flex justify-content-between align-items-center p-3 mb-3">
                 <div className="date-info">
                     <div>{date}</div>
-                    <div>{time}</div>
+                    <div className="text-small">{time}</div>
+                </div>
+                <div className="progress-bar-container d-flex justify-content-between align-items-center">
+                    0
+                    <ProgressBar style={{width: "270px"}} className="mx-2 progress-bar-panel">
+                        {
+                            answers?.map((answer, index) => (
+                                <ProgressBar key={index} variant={answer.isCorrect ? "success" : "danger"}
+                                             now={progressBarSeparator}></ProgressBar>
+                            ))
+                        }
+                    </ProgressBar>
+                    <div className="progress-bar-tooltip border border-black rounded-3 bg-white py-1 px-2">Пройдено: {answersCount} из {questionsCount}</div>
+                    {questionsCount}
                 </div>
 
-                <ProgressBar style={{width: "300px"}}>
-                    {
-                        answers?.map((answer, index) => (
-                            <ProgressBar key={index} variant={answer.isCorrect ? "success" : "danger"} now={progressBarSeparator}></ProgressBar>
-                        ))
-                    }
-                </ProgressBar>
 
-                <div>Верно: {correctAnswers} из {answersCount}</div>
+                <div>Верно: {correctAnswers} из {questionsCount}</div>
             </div>
         </div>
     )

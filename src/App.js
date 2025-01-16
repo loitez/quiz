@@ -1,10 +1,12 @@
 import {Routes, Route, Router} from "react-router-dom";
 import styled from "styled-components";
 import {Main, Test} from "./pages";
+import './index.css'
 
 const Page = styled.div`
     min-height: 100vh;
     min-width: 100vw;
+    margin-top: 40px;
 `
 
 export const App = () => {

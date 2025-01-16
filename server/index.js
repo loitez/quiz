@@ -15,7 +15,6 @@ const app = express()
 
 app.get('/questions', async (req, res) => {
     const questions = await getQuestions()
-    console.log(questions)
     res.status(200).json({ questions })
 })
 

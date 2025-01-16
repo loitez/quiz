@@ -4,7 +4,10 @@ import {TestHistoryPanel} from "../test-history-panel/test-history-panel";
 
 export const TestHistory = () => {
 
+    //const [questionsCount, setQuestionsCount] = useState(0);
+
     let testHistory = JSON.parse(localStorage.getItem("testHistory")) || [];
+
 
     return (
         <>
