@@ -159,7 +159,7 @@ export const Test = () => {
                             <div className="mb-5">
                                 <div className="text-center mb-2">{currentIndex + 1}/{questions.length}</div>
                                 <TestQuestion key={currentQuestion.id} index={currentQuestion._id} title={currentQuestion.title}
-                                              answers={currentQuestion.answers} onChange={onAnswerChange} isDisabled={isDisabled} userAnswer={userAnswers[currentIndex - 1]}/>
+                                              answers={currentQuestion.answers} onChange={onAnswerChange} isDisabled={isDisabled} hash={hash}/>
                             </div>
                             <div aria-label="Basic example" className="d-grid mb-3 gap-0 column-gap-3 d-md-flex">
                                 <Button variant="outline-dark" className="me-2 w-100" onClick={onPrevClick}

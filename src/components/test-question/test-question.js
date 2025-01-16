@@ -20,14 +20,20 @@ const changeButton = (btn, color) => {
 }
 
 
-export const TestQuestion = ({index: questionID, title, answers, onChange: onAnswerChange, isDisabled, userAnswer}) => {
+export const TestQuestion = ({index: questionID, title, answers, onChange: onAnswerChange, isDisabled, hash}) => {
 
-    const [value, setValue] = useState(userAnswer || '');
+    const [value, setValue] = useState('');
     const debouncedChangeColor = useMemo(() => debounce(changeButtonColor, 200), [])
     const debouncedResetColor = useMemo(() => debounce(resetButtonColor, 600), [])
 
+
+
     useEffect(() => {
-    }, [])
+        const testHistory = JSON.parse(localStorage.getItem('testHistory') )|| []
+        const userAnswer = testHistory.find((item) => item.session === hash)?.answers.find((answer) => answer.id === questionID)?.value
+        setValue(userAnswer)
+
+    }, [questionID])
 
 
     const onRadioChange = (answer, event)  => {

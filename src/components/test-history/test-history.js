@@ -8,7 +8,6 @@ export const TestHistory = () => {
 
     let testHistory = JSON.parse(localStorage.getItem("testHistory")) || [];
 
-    console.log(testHistory)
 
     return (
         <>
