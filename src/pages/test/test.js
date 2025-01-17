@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {getQuestions} from "../../api";
-import {TestQuestion} from "../../components";
+import {NoQuestionsFound, TestQuestion} from "../../components";
 import {Link, useNavigate} from "react-router-dom";
 import {Button, ButtonGroup, Spinner} from "react-bootstrap";
 import styled from "styled-components";
@@ -167,20 +167,24 @@ export const Test = () => {
                             </div>
                         </>
                     ) : (
-                        <>
-                            <div className="mb-5">
-                                <div className="text-center mb-2">{currentIndex + 1}/{questions.length}</div>
-                                <TestQuestion key={currentQuestion.id} index={currentQuestion._id} title={currentQuestion.title}
-                                              answers={currentQuestion.answers} onChange={onAnswerChange} isDisabled={isDisabled} hash={hash}/>
-                            </div>
-                            <div aria-label="Basic example" className="d-grid mb-3 gap-0 column-gap-3 d-md-flex">
-                                <Button variant="outline-dark" className="me-2 w-100" onClick={onPrevClick}
-                                        disabled={currentIndex === 0}>Предыдущий вопрос</Button>
-                                <Button variant="outline-dark" className="me-2 w-100" onClick={onNextClick} disabled={!isChecked}>{
-                                    currentIndex < questions.length - 1 ? 'Следующий вопрос' : 'Завершить тест'
-                                }</Button>
-                            </div>
-                        </>
+                        questionsCount > 0 ? (
+                            <>
+                                <div className="mb-5">
+                                    <div className="text-center mb-2">{currentIndex + 1}/{questions.length}</div>
+                                    <TestQuestion key={currentQuestion.id} index={currentQuestion._id} title={currentQuestion.title}
+                                                  answers={currentQuestion.answers} onChange={onAnswerChange} isDisabled={isDisabled} hash={hash}/>
+                                </div>
+                                <div aria-label="Basic example" className="d-grid mb-3 gap-0 column-gap-3 d-md-flex">
+                                    <Button variant="outline-dark" className="me-2 w-100" onClick={onPrevClick}
+                                            disabled={currentIndex === 0}>Предыдущий вопрос</Button>
+                                    <Button variant="outline-dark" className="me-2 w-100" onClick={onNextClick} disabled={!isChecked}>{
+                                        currentIndex < questions.length - 1 ? 'Следующий вопрос' : 'Завершить тест'
+                                    }</Button>
+                                </div>
+                            </>
+                        ) : (
+                            <NoQuestionsFound/>
+                        )
                     )}
                     </TestContainer>
             )}

@@ -40,3 +40,49 @@ code {
   margin: 0 auto;
   display: block;
 }
+.option-edit-buttons {
+  margin-left: 10px;
+}
+.option-edit-buttons > button {
+  width: 40px;
+  height: 40px;
+}
+.option-set-correct-btn {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+.option-set-correct-btn  > input {
+  display: none;
+  cursor: pointer;
+}
+.option-set-correct-btn  > label {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 2rem;
+  border: 1px solid #198754;
+  color: white;
+  cursor: pointer;
+}
+.option-set-correct-btn  > label:hover {
+  /*background-color: #198754;*/
+  box-shadow: #198754 0 0 3px 1px;
+}
+.option-set-correct-btn  > label:hover > i {
+  opacity: 0;
+}
+.option-set-correct-btn  > label > i {
+  opacity: 1;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.option-set-correct-btn  > input:checked + label > i {
+  opacity: 1;
+}
+.option-set-correct-btn  > input:checked + label {
+  background-color: #198754;
+}

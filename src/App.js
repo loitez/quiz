@@ -1,6 +1,6 @@
 import {Routes, Route, Router} from "react-router-dom";
 import styled from "styled-components";
-import {Main, Test} from "./pages";
+import {Main, Test, TestEdit} from "./pages";
 import './index.css'
 
 const Page = styled.div`
@@ -16,7 +16,7 @@ export const App = () => {
           <Routes>
               <Route path="/" element={<Main/>}></Route>
               <Route path="/test" element={<Test/>}></Route>
-              <Route path="/test/edit" element={<p>Редактирование</p>}></Route>
+              <Route path="/test/edit" element={<TestEdit/>}></Route>
           </Routes>
       </Page>
 
