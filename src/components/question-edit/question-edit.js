@@ -1,5 +1,5 @@
 import {Accordion, Button, Form} from "react-bootstrap";
-import {useEffect, useMemo, useState} from "react";
+import {use, useEffect, useMemo, useState} from "react";
 import {OptionEdit} from "../option-edit/option-edit";
 import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
@@ -13,6 +13,14 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [questionData, setQuestionData] = useState(question);
     const [shouldRefreshOptions, setShouldRefreshOptions] = useState(false)
     const [options, setOptions] = useState(answers);
+    const [questionBackup, setQuestionBackup] = useState({})
+
+    useEffect(() => {
+        console.log('use eff question edit')
+        setQuestionBackup(question)
+    }, [])
+
+
 
     useEffect( () => {
         async function fetchQuestion() {
@@ -36,6 +44,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         setTitleValue(event.target.value);
         questionData.title = event.target.value;
         setQuestionData(questionData);
+
     }
 
     const onOptionChange = (optionValue, optionId) => {
@@ -47,6 +56,15 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onAccordionOpen = () => {
         console.log('opened')
+    }
+
+    const onCancelClick = () => {
+        console.log('cancel click')
+        console.log(questionBackup)
+        setTitleValue(questionBackup.title)
+        setOptions(questionBackup.answers)
+        console.log(options)
+        setQuestionData(questionBackup)
     }
 
     const onSaveQuestionClick = async () => {
@@ -83,7 +101,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                             )}
                             <div className="buttons d-flex justify-content-between align-items-center mt-5">
                                 <Button variant="light"
-                                        className="border-1 border-secondary w-100 me-2">Отменить</Button>
+                                        className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>
                                 <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick}>Сохранить</Button>
                                 <Button variant="danger" className="w-100" onClick={onDeleteQuestionClick}>Удалить
                                     вопрос</Button>

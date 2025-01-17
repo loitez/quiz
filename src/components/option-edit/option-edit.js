@@ -5,7 +5,7 @@ import {Overlay} from "../overlay/overlay";
 import {debounce} from "../../utils";
 
 export const OptionEdit = ({option, questionID, onChange: sendValueToParent, setShouldRefreshOptions}) => {
-    console.log(option)
+
     const [optionValue, setOptionValue] = useState(option.text)
     const [isDeleting, setIsDeleting] = useState(false)
 
