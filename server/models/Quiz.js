@@ -4,7 +4,8 @@ const QuizSchema = mongoose.Schema({
     title: {
         type: String,
         required: true
-    }
+    },
+    answers: [{text: {type: String, required: true}, isCorrect: {type: Boolean, required: true}}]
 })
 
 const Quiz = mongoose.model("Quiz", QuizSchema);

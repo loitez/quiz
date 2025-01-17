@@ -7,13 +7,17 @@ async function getQuestions() {
     return Quiz.find()
 }
 
+async function getQuestion(id) {
+    console.log('get one question')
+    return Quiz.find({_id: id})
+}
+
 async function removeOption(id, index) {
-    //console.log(id, index)
-    const answer = Quiz.findById(id)
-    console.log(answer)
-    const result = Quiz.updateOne({ _id:id},{$pull:{answers: {_id: index }}});
-    console.log(result)
-    return result
+    try {
+        await Quiz.findOneAndUpdate({_id: id}, {$pull:{answers: {_id: index }}})
+    } catch (err) {
+        console.error(err)
+    }
 }
 
 async function removeQuestion(id) {
@@ -21,11 +25,14 @@ async function removeQuestion(id) {
 }
 
 async function updateQuestion(id, data) {
-    console.log(data)
-    await Quiz.updateOne({_id:id}, data)
-    // await Quiz.findOneAndReplace({_id: id}, data)
+    try {
+        await Quiz.updateOne({_id:id}, data)
+        await Quiz.findOneAndUpdate({_id: id}, {answers: data.answers}, {new: true})
+    } catch (err) {
+        console.error(err)
+    }
 }
 
 module.exports = {
-    getQuestions, removeOption, removeQuestion, updateQuestion
+    getQuestions, removeOption, removeQuestion, updateQuestion, getQuestion
 }

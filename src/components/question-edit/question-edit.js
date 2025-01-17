@@ -1,8 +1,9 @@
 import {Accordion, Button, Form} from "react-bootstrap";
 import {useEffect, useMemo, useState} from "react";
 import {OptionEdit} from "../option-edit/option-edit";
-import {deleteQuestion, updateQuestion} from "../../api";
+import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
+import {Overlay} from '../overlay/overlay'
 
 export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const {_id: id, answers, title} = question;
@@ -10,6 +11,23 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [titleValue, setTitleValue] = useState(title);
     const [isDeleting, setIsDeleting] = useState(false);
     const [questionData, setQuestionData] = useState(question);
+    const [shouldRefreshOptions, setShouldRefreshOptions] = useState(false)
+    const [options, setOptions] = useState(answers);
+
+    useEffect( () => {
+        async function fetchQuestion() {
+            if (shouldRefreshOptions) {
+                console.log('should update')
+                getQuestionOptions(id).then((res) => {
+                    setOptions(res)
+                })
+            }
+        }
+
+        fetchQuestion().then(() => {
+            setShouldRefreshOptions(false)
+        })
+    }, [shouldRefreshOptions])
 
 
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
@@ -58,9 +76,11 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                           onChange={onTitleChange}/>
                         </Accordion.Header>
                         <Accordion.Body>
-                            {answers.map((option) => (
-                                <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange}/>
-                            ))}
+                            {options.length > 0 ? (options.map((option) => (
+                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions}/>
+                                ))) : (
+                                <div className="text-center">Нет вариантов ответа</div>
+                            )}
                             <div className="buttons d-flex justify-content-between align-items-center mt-5">
                                 <Button variant="light"
                                         className="border-1 border-secondary w-100 me-2">Отменить</Button>
@@ -70,13 +90,11 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                             </div>
                         </Accordion.Body>
                         {isDeleting &&
-                            <>
-                                <div className="overlay position-absolute top-0 start-0 bottom-0 end-0 bg-white"></div>
-                                <div
-                                    className="text-center position-absolute z-2 top-50 start-50 translate-middle fs-5">Удаляем
-                                    вопрос...
-                                </div>
-                            </>
+
+                            <Overlay>
+                                Удаляем вопрос...
+                            </Overlay>
+
                         }
                     </Accordion.Item>
             </Accordion>

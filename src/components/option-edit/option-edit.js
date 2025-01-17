@@ -1,10 +1,15 @@
 import {Button, Form} from "react-bootstrap";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {deleteOption} from "../../api";
+import {Overlay} from "../overlay/overlay";
+import {debounce} from "../../utils";
 
-export const OptionEdit = ({option, questionID, onChange: sendValueToParent}) => {
+export const OptionEdit = ({option, questionID, onChange: sendValueToParent, setShouldRefreshOptions}) => {
     console.log(option)
     const [optionValue, setOptionValue] = useState(option.text)
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
 
     const onOptionChange = (event) => {
         setOptionValue(event.target.value)
@@ -17,15 +22,20 @@ export const OptionEdit = ({option, questionID, onChange: sendValueToParent}) =>
     const onDeleteOptionClick = async () => {
         console.log(option)
         console.log(option._id)
-        //await deleteOption(questionID, option._id)
+        setIsDeleting(true)
+        setOptionValue('Удаляем вариант ответа...')
+        await deleteOption(questionID, option._id)
+        await debouncedDeleteQuestion(false)
+        setShouldRefreshOptions(true)
+
     }
 
     const correctAnswerLabel = <i className="bi bi-check2"></i>
 
     return (
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center position-relative">
             <Form.Control className="mx-2 my-2" type="text" placeholder="Введите вариант ответа..." value={optionValue}
-                          onChange={onOptionChange}/>
+                          onChange={onOptionChange} disabled={isDeleting}/>
             <div className="buttons option-edit-buttons d-flex justify-content-between align-items-center">
                 <Form.Check
                     type="radio"
@@ -36,11 +46,13 @@ export const OptionEdit = ({option, questionID, onChange: sendValueToParent}) =>
                     onChange={onSetCorrectAnswerChange}
                     checked={option.isCorrect}
                     title="Отметить верным"
+                    disabled={isDeleting}
                 />
-                <Button variant="outline-danger rounded-5" title="Удалить этот вариант" onClick={onDeleteOptionClick}>
+                <Button variant="outline-danger rounded-5" title="Удалить этот вариант" onClick={onDeleteOptionClick} disabled={isDeleting}>
                     <i className="bi bi-trash3"></i>
                 </Button>
             </div>
+
         </div>
     )
 }

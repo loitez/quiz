@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const mongoose = require("mongoose");
 const Quiz = require('./models/Quiz');
 const dotenv = require('dotenv');
-const {getQuestions, removeOption, removeQuestion, updateQuestion} = require("./quiz.controller");
+const {getQuestions, removeOption, removeQuestion, updateQuestion, getQuestion} = require("./quiz.controller");
 
 dotenv.config();
 
@@ -17,6 +17,12 @@ app.use(express.json())
 app.get('/questions', async (req, res) => {
     const questions = await getQuestions() || []
     res.status(200).json({ questions })
+})
+
+app.get('/questions/:id', async (req, res) => {
+    console.log(req.params.id)
+    const question = await getQuestion(req.params.id)
+    res.status(200).json(question[0])
 })
 
 app.delete('/questions/:id/:index', async (req, res) => {
