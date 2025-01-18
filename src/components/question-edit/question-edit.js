@@ -12,20 +12,21 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [questionData, setQuestionData] = useState(question);
     const [shouldRefreshOptions, setShouldRefreshOptions] = useState(false)
-    const [options, setOptions] = useState(answers);
-    const [questionBackup, setQuestionBackup] = useState({})
+    const [options, setOptions] = useState(questionData.answers);
+    //const [questionBackup, setQuestionBackup] = useState(question)
+    //const [isCorrect, setIsCorrect] = useState()
+    const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
+    const [newOptionValue, setNewOptionValue] = useState('')
 
     useEffect(() => {
-        console.log('use eff question edit')
-        setQuestionBackup(question)
     }, [])
 
-
+    console.log(options)
 
     useEffect( () => {
         async function fetchQuestion() {
+            console.log('refreshing')
             if (shouldRefreshOptions) {
-                console.log('should update')
                 getQuestionOptions(id).then((res) => {
                     setOptions(res)
                 })
@@ -47,10 +48,20 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     }
 
-    const onOptionChange = (optionValue, optionId) => {
+    const onOptionChange = (optionValue, optionId, isOptionCorrect) => {
+        //console.log(isCorrect)
         questionData.answers.find((item) => item._id === optionId).text = optionValue;
-        console.log(questionData)
+        questionData.answers.map((item) => item.isCorrect = false)
+        questionData.answers.find((item) => item._id === optionId).isCorrect = isOptionCorrect;
+        //setIsCorrect(isOptionCorrect)
+
+
+        //console.log(questionData)
         setQuestionData(questionData);
+        setOptions(questionData.answers)
+        console.log(options)
+        //console.log(options)
+        //setShouldRefreshOptions(true)
     }
 
 
@@ -59,15 +70,14 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onCancelClick = () => {
-        console.log('cancel click')
-        console.log(questionBackup)
+        /*console.log(questionBackup)
         setTitleValue(questionBackup.title)
         setOptions(questionBackup.answers)
-        console.log(options)
-        setQuestionData(questionBackup)
+        setQuestionData(questionBackup)*/
     }
 
     const onSaveQuestionClick = async () => {
+        console.log(questionData, 'updating')
         await updateQuestion(questionData)
     }
 
@@ -84,6 +94,19 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     }
 
+    const onNewOptionAdd = () => {
+        setIsCreatingNewOption(true)
+    }
+
+    const onCancelAddingOptionClick = () => {
+        setIsCreatingNewOption(false)
+        setNewOptionValue('')
+    }
+
+    const onNewOptionAddChange = (event) => {
+        setNewOptionValue(event.target.value)
+    }
+
     return (
         <div className="mb-4">
             <Accordion defaultActiveKey="0" className="mb-2">
@@ -94,8 +117,15 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                           onChange={onTitleChange}/>
                         </Accordion.Header>
                         <Accordion.Body>
+                            <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onNewOptionAdd} hidden={isCreatingNewOption}>+</Button>
+                            { isCreatingNewOption &&
+                                <div className="d-flex justify-content-center align-items-center">
+                                    <Form.Control className="mx-2 my-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionAddChange}/>
+                                    <Button variant="outline-dark ms-1" onClick={onCancelAddingOptionClick}>&times;</Button>
+                                </div>
+                            }
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions}/>
+                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect}/>
                                 ))) : (
                                 <div className="text-center">Нет вариантов ответа</div>
                             )}

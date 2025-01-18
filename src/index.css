@@ -86,3 +86,6 @@ code {
 .option-set-correct-btn  > input:checked + label {
   background-color: #198754;
 }
+button[disabled] {
+  cursor: not-allowed;
+}

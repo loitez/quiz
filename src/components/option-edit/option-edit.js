@@ -4,18 +4,32 @@ import {deleteOption} from "../../api";
 import {Overlay} from "../overlay/overlay";
 import {debounce} from "../../utils";
 
-export const OptionEdit = ({option, questionID, onChange: sendValueToParent, setShouldRefreshOptions}) => {
+export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, isCorrect = option.isCorrect}) => {
 
     const [optionValue, setOptionValue] = useState(option.text)
+    //const [isCorrect, setIsCorrect] = useState(option.isCorrect)
     const [isDeleting, setIsDeleting] = useState(false)
+
+    //const isOptionCorrect = options.find((item) => item._id === option._id).isCorrect;
+
+    //console.log(options, ' - in option edit')
 
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
 
     const onOptionChange = (event) => {
         setOptionValue(event.target.value)
-        sendValueToParent(event.target.value, option._id)
+        onChange(event.target.value, option._id, event.target.checked)
     }
-    const onSetCorrectAnswerChange = () => {
+    const onSetCorrectAnswerChange = async (event) => {
+        /*console.log(event.target)
+        setIsCorrect(true)
+        event.target.setAttribute('checked', true)
+        console.log('setting correct answer')*/
+        //await setCorrectAnswer(questionID, option._id)
+        //sendValueToParent(option._id, )
+        onChange(optionValue, option._id, event.target.checked)
+        //event.target.setAttribute('checked', option.isCorrect)
+        //setIsCorrect(option.isCorrect)
 
     }
 
@@ -27,7 +41,6 @@ export const OptionEdit = ({option, questionID, onChange: sendValueToParent, set
         await deleteOption(questionID, option._id)
         await debouncedDeleteQuestion(false)
         setShouldRefreshOptions(true)
-
     }
 
     const correctAnswerLabel = <i className="bi bi-check2"></i>
@@ -40,11 +53,11 @@ export const OptionEdit = ({option, questionID, onChange: sendValueToParent, set
                 <Form.Check
                     type="radio"
                     label={correctAnswerLabel}
-                    id={`option-${option.id}`}
+                    id={`option-${option._id}`}
                     name={`option-${questionID}`}
                     className="option-set-correct-btn px-0"
                     onChange={onSetCorrectAnswerChange}
-                    checked={option.isCorrect}
+                    checked={isCorrect}
                     title="Отметить верным"
                     disabled={isDeleting}
                 />
