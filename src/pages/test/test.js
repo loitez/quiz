@@ -45,6 +45,7 @@ export const Test = () => {
 
     useEffect(() => {
         getQuestions().then((questions) => {
+            console.log(questions)
             setQuestions(questions);
             setCurrentQuestion(questions[currentIndex])
             setQuestionsCount(questions.length)

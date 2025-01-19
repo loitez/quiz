@@ -23,7 +23,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }, [])
 
-    const QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`QUESTION-${id}_BACKUP`))
+    let QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`QUESTION-${id}_BACKUP`))
 
     useEffect( () => {
         async function fetchQuestion() {
@@ -86,6 +86,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         await updateQuestion(questionData)
         setIsAlertVisible(true)
         debouncedHideAlert(false)
+        sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }
 
     const onDeleteQuestionClick = async () => {
