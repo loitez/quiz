@@ -37,7 +37,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }, [shouldRefreshOptions])
 
     useEffect(() => {
-        if (!checkCorrectOptionExists(options)) {
+        if (options.length > 0 && !checkCorrectOptionExists(options)) {
             autoSetCorrectOption(options)
         }
     }, [options])
@@ -154,9 +154,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                             {options.length > 0 ? (options.map((option) => (
                                     <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
                                 ))) : (
-                                <div className="text-center">Нет вариантов ответа</div>
+                                <div className="text-center mt-4">Нет вариантов ответа</div>
                             )}
-                            <div className="buttons d-flex justify-content-between align-items-center mt-5">
+                            <div className="buttons d-flex justify-content-between align-items-center mt-4">
                                 <Button variant="light"
                                         className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>
                                 <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick}>Сохранить</Button>
