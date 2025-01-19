@@ -4,7 +4,7 @@ import {deleteOption} from "../../api";
 import {Overlay} from "../overlay/overlay";
 import {debounce} from "../../utils";
 
-export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, isCorrect = option.isCorrect}) => {
+export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, isCorrect = option.isCorrect, onDeleteOption}) => {
 
     const [optionValue, setOptionValue] = useState(option.text)
     //const [isCorrect, setIsCorrect] = useState(option.isCorrect)
@@ -34,13 +34,15 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
     }
 
     const onDeleteOptionClick = async () => {
-        console.log(option)
-        console.log(option._id)
+        //console.log(option)
+        //console.log(option._id)
+        console.log('option-edit has been changed')
         setIsDeleting(true)
         setOptionValue('Удаляем вариант ответа...')
-        await deleteOption(questionID, option._id)
+        //await deleteOption(questionID, option._id)
+        await onDeleteOption(option._id)
         await debouncedDeleteQuestion(false)
-        setShouldRefreshOptions(true)
+        //setShouldRefreshOptions(true)
     }
 
     const correctAnswerLabel = <i className="bi bi-check2"></i>

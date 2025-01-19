@@ -18,6 +18,8 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
 
+    console.log('question edit has been reloaded')
+
     useEffect(() => {
     }, [])
 
@@ -38,6 +40,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
 
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
+    const debouncedDeleteOption = useMemo(() => debounce(setOptions, 700), [])
 
     const onTitleChange = (event) => {
         setTitleValue(event.target.value);
@@ -111,6 +114,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         }
     }
 
+    const onDeleteOption = (id) => {
+        console.log(id)
+        debouncedDeleteOption(options.filter((item) => item._id !== id))
+        setQuestionData({...questionData, answers: options.filter((item) => item._id !== id)})
+    }
+
     return (
         <div className="mb-4">
             <Accordion defaultActiveKey="0" className="mb-2">
@@ -121,15 +130,17 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                           onChange={onTitleChange}/>
                         </Accordion.Header>
                         <Accordion.Body>
-                            <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onAddNewOption} hidden={isCreatingNewOption}>+</Button>
-                            { isCreatingNewOption &&
-                                <div className="d-flex justify-content-center align-items-center">
-                                    <Form.Control className="mx-2 my-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionChange} onKeyDown={onNewOptionAdd}/>
-                                    <Button variant="outline-dark ms-1" onClick={onNewOptionCancel}>&times;</Button>
-                                </div>
-                            }
+                            <div className="mb-2">
+                                <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onAddNewOption} hidden={isCreatingNewOption}>+</Button>
+                                { isCreatingNewOption &&
+                                    <div className="d-flex justify-content-center align-items-center">
+                                        <Form.Control className="mx-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionChange} onKeyDown={onNewOptionAdd}/>
+                                        <Button variant="outline-dark ms-1" onClick={onNewOptionCancel}>&times;</Button>
+                                    </div>
+                                }
+                            </div>
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect}/>
+                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect} onDeleteOption={onDeleteOption}/>
                                 ))) : (
                                 <div className="text-center">Нет вариантов ответа</div>
                             )}
