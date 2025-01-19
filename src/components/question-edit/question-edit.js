@@ -8,17 +8,26 @@ import {Overlay} from '../overlay/overlay'
 export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const {_id: id, answers, title} = question;
 
+
     const [titleValue, setTitleValue] = useState(title);
     const [isDeleting, setIsDeleting] = useState(false);
     const [questionData, setQuestionData] = useState(question);
     const [shouldRefreshOptions, setShouldRefreshOptions] = useState(false)
-    const [options, setOptions] = useState(questionData.answers);
+    const [options, setOptions] = useState(answers);
     //const [questionBackup, setQuestionBackup] = useState(question)
     //const [isCorrect, setIsCorrect] = useState()
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
 
+
+    console.log(questionData)
+
+
+
     useEffect(() => {
+        console.log('use eff')
+        sessionStorage.setItem(`questionBackup-${id}`, JSON.stringify(question))
+        setOptions([...questionData.answers])
     }, [])
 
     useEffect( () => {
@@ -41,22 +50,32 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onTitleChange = (event) => {
         setTitleValue(event.target.value);
-        questionData.title = event.target.value;
-        setQuestionData(questionData);
+        //questionData.title = event.target.value;
+        setQuestionData({...questionData, title: event.target.value}); //todo: -one symbol
+        console.log(questionData)
 
     }
 
     const onOptionChange = (optionValue, optionId, isOptionCorrect) => {
         //console.log(isCorrect)
-        questionData.answers.find((item) => item._id === optionId).text = optionValue;
-        questionData.answers.map((item) => item.isCorrect = false)
-        questionData.answers.find((item) => item._id === optionId).isCorrect = isOptionCorrect;
+        if (isOptionCorrect) {
+            questionData.answers.map((item) => item.isCorrect = false)
+        }
+        questionData.answers.map((item) => {
+            if (item._id === optionId) {
+                item.text = optionValue
+                item.isCorrect = isOptionCorrect
+            }
+        })
+        //questionData.answers.find((item) => item._id === optionId).text = optionValue;
+
+        // questionData.answers.find((item) => item._id === optionId).isCorrect = isOptionCorrect;
         //setIsCorrect(isOptionCorrect)
 
 
         //console.log(questionData)
         setQuestionData(questionData);
-        setOptions(questionData.answers)
+        setOptions([...options, questionData.answers])
         console.log(options)
         //console.log(options)
         //setShouldRefreshOptions(true)
@@ -72,6 +91,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         setTitleValue(questionBackup.title)
         setOptions(questionBackup.answers)
         setQuestionData(questionBackup)*/
+        const QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`questionBackup-${id}`))
+        console.log(QUESTION_BACKUP)
+        setTitleValue(QUESTION_BACKUP.title)
+        setOptions([...QUESTION_BACKUP.answers])
+        setQuestionData(QUESTION_BACKUP)
+        setIsCreatingNewOption(false)
     }
 
     const onSaveQuestionClick = async () => {
@@ -107,9 +132,29 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
-            options.push({text: newOptionValue, isCorrect: false})
+            setOptions([...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}])
+            //options.push({text: newOptionValue, isCorrect: false})
+            console.log(options)
+            setNewOptionValue('')
+            //setIsCreatingNewOption(false)
         }
     }
+
+    const onDeleteOption = (id) => {
+        const itemIndex = options.indexOf(options.find((item) => item._id === id))
+        //console.log(options, itemIndex)
+        console.log(options)
+        const newArray = options.filter((item) => item._id !== id)
+
+        setOptions([...newArray])
+        console.log(newArray)
+        //setQuestionData({...questionData, answers: [...newArray]})
+        //setOptions([...questionData.answers])
+        //setQuestionData([...questionData, questionData.answers=options])
+        console.log(options.filter((item) => item._id !== id))
+        console.log(options)
+    }
+    const debouncedDeleteOption = useMemo(() => debounce(onDeleteOption, 700), [])
 
     return (
         <div className="mb-4">
@@ -129,15 +174,15 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                 </div>
                             }
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect}/>
+                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect} onDeleteOption={debouncedDeleteOption}/>
                                 ))) : (
                                 <div className="text-center">Нет вариантов ответа</div>
                             )}
                             <div className="buttons d-flex justify-content-between align-items-center mt-5">
                                 <Button variant="light"
-                                        className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>
-                                <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick}>Сохранить</Button>
-                                <Button variant="danger" className="w-100" onClick={onDeleteQuestionClick}>Удалить
+                                        className="border-1 border-secondary w-100 me-2" onClick={onCancelClick} title="Отменить все изменения">Отменить</Button>
+                                <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick} title="Сохранить все изменения">Сохранить</Button>
+                                <Button variant="danger" className="w-100" onClick={onDeleteQuestionClick} title="Удалить вопрос">Удалить
                                     вопрос</Button>
                             </div>
                         </Accordion.Body>
