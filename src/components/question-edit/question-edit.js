@@ -18,17 +18,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
 
-    console.log('question edit has been reloaded')
-    console.log(questionData)
-    console.log(options)
-
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }, [])
 
     useEffect( () => {
         async function fetchQuestion() {
-            console.log('refreshing')
             if (shouldRefreshOptions) {
                 getQuestionOptions(id).then((res) => {
                     setOptions(res)
@@ -41,6 +36,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         })
     }, [shouldRefreshOptions])
 
+    useEffect(() => {
+        if (!checkCorrectOptionExists(options)) {
+            autoSetCorrectOption(options)
+        }
+    }, [options])
+
 
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
     const debouncedDeleteOption = useMemo(() => debounce(setOptions, 700), [])
@@ -49,19 +50,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         setTitleValue(event.target.value);
         questionData.title = event.target.value;
         setQuestionData(questionData);
-
     }
 
     const onOptionChange = (optionValue, optionId, isOptionCorrect) => {
-
-        console.log(optionValue, optionId, isOptionCorrect)
-        console.log(questionData)
-        //console.log(isCorrect)
-
         if (isOptionCorrect) {
             questionData.answers.map((item) => item.isCorrect = false)
         }
-
         questionData.answers.map((item) => {
             if (item._id === optionId) {
                 item.text = optionValue
@@ -85,7 +79,6 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onSaveQuestionClick = async () => {
-        console.log(questionData, 'updating')
         await updateQuestion(questionData)
     }
 
@@ -102,10 +95,6 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     }
 
-    const onAddNewOption = () => {
-        setIsCreatingNewOption(true)
-    }
-
     const onNewOptionCancel = () => {
         setIsCreatingNewOption(false)
         setNewOptionValue('')
@@ -117,7 +106,6 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
-            //options.push({text: newOptionValue, isCorrect: false})
             const updatedOptions = [...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}]
             setOptions(updatedOptions)
             setQuestionData({...questionData, answers: updatedOptions})
@@ -126,10 +114,23 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onDeleteOption = (id) => {
-        console.log(id)
-        debouncedDeleteOption(options.filter((item) => item._id !== id))
-        setQuestionData({...questionData, answers: options.filter((item) => item._id !== id)})
+        const updatedOptions = options.filter((item) => item._id !== id)
+        debouncedDeleteOption(updatedOptions)
+        setQuestionData({...questionData, answers: updatedOptions})
     }
+
+    const checkCorrectOptionExists = (options) => {
+        const index = options.indexOf(options.find((item) => item.isCorrect === true))
+        return index > -1
+    }
+
+    const autoSetCorrectOption = (options) => {
+        const firstElement = options[0];
+        const updatedOptions = options.slice(1)
+        firstElement.isCorrect = true;
+        setOptions([firstElement, ...updatedOptions])
+    }
+
 
     return (
         <div className="mb-4">
@@ -142,7 +143,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
-                                <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onAddNewOption} hidden={isCreatingNewOption}>+</Button>
+                                <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={() => setIsCreatingNewOption(true)} hidden={isCreatingNewOption}>+</Button>
                                 { isCreatingNewOption &&
                                     <div className="d-flex justify-content-center align-items-center">
                                         <Form.Control className="mx-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionChange} onKeyDown={onNewOptionAdd}/>
