@@ -21,6 +21,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     console.log('question edit has been reloaded')
 
     useEffect(() => {
+        sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }, [])
 
     useEffect( () => {
@@ -71,10 +72,10 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onCancelClick = () => {
-        /*console.log(questionBackup)
-        setTitleValue(questionBackup.title)
-        setOptions(questionBackup.answers)
-        setQuestionData(questionBackup)*/
+        const QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`QUESTION-${id}_BACKUP`))
+        setTitleValue(QUESTION_BACKUP.title)
+        setOptions([...QUESTION_BACKUP.answers])
+        setQuestionData({...QUESTION_BACKUP})
     }
 
     const onSaveQuestionClick = async () => {
@@ -110,7 +111,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
-            options.push({text: newOptionValue, isCorrect: false})
+            //options.push({text: newOptionValue, isCorrect: false})
+            setOptions([...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}])
+            setNewOptionValue('')
         }
     }
 
