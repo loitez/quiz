@@ -19,6 +19,8 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [newOptionValue, setNewOptionValue] = useState('')
 
     console.log('question edit has been reloaded')
+    console.log(questionData)
+    console.log(options)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
@@ -51,19 +53,23 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onOptionChange = (optionValue, optionId, isOptionCorrect) => {
+
+        console.log(optionValue, optionId, isOptionCorrect)
+        console.log(questionData)
         //console.log(isCorrect)
-        questionData.answers.find((item) => item._id === optionId).text = optionValue;
-        questionData.answers.map((item) => item.isCorrect = false)
-        questionData.answers.find((item) => item._id === optionId).isCorrect = isOptionCorrect;
-        //setIsCorrect(isOptionCorrect)
 
+        if (isOptionCorrect) {
+            questionData.answers.map((item) => item.isCorrect = false)
+        }
 
-        //console.log(questionData)
-        setQuestionData(questionData);
-        setOptions(questionData.answers)
-        console.log(options)
-        //console.log(options)
-        //setShouldRefreshOptions(true)
+        questionData.answers.map((item) => {
+            if (item._id === optionId) {
+                item.text = optionValue
+                item.isCorrect = isOptionCorrect
+            }
+        })
+        setQuestionData({...questionData});
+        setOptions([...questionData.answers])
     }
 
 
@@ -112,7 +118,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
             //options.push({text: newOptionValue, isCorrect: false})
-            setOptions([...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}])
+            const updatedOptions = [...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}]
+            setOptions(updatedOptions)
+            setQuestionData({...questionData, answers: updatedOptions})
             setNewOptionValue('')
         }
     }
@@ -143,7 +151,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                 }
                             </div>
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} isCorrect={option.isCorrect} onDeleteOption={onDeleteOption}/>
+                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
                                 ))) : (
                                 <div className="text-center">Нет вариантов ответа</div>
                             )}

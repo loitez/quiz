@@ -4,7 +4,7 @@ import {deleteOption} from "../../api";
 import {Overlay} from "../overlay/overlay";
 import {debounce} from "../../utils";
 
-export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, isCorrect = option.isCorrect, onDeleteOption}) => {
+export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, onDeleteOption}) => {
 
     const [optionValue, setOptionValue] = useState(option.text)
     //const [isCorrect, setIsCorrect] = useState(option.isCorrect)
@@ -59,7 +59,7 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
                     name={`option-${questionID}`}
                     className="option-set-correct-btn px-0"
                     onChange={onSetCorrectAnswerChange}
-                    checked={isCorrect}
+                    checked={option.isCorrect}
                     title="Отметить верным"
                     disabled={isDeleting}
                 />
