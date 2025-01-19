@@ -1,4 +1,4 @@
-import {Accordion, Button, Form} from "react-bootstrap";
+import {Accordion, Alert, Button, Form} from "react-bootstrap";
 import {use, useEffect, useMemo, useState} from "react";
 import {OptionEdit} from "../option-edit/option-edit";
 import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
@@ -17,10 +17,13 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     //const [isCorrect, setIsCorrect] = useState()
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
+    const [isAlertVisible, setIsAlertVisible] = useState(false)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }, [])
+
+    const QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`QUESTION-${id}_BACKUP`))
 
     useEffect( () => {
         async function fetchQuestion() {
@@ -45,6 +48,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
     const debouncedDeleteOption = useMemo(() => debounce(setOptions, 700), [])
+    const debouncedHideAlert = useMemo(() => debounce(setIsAlertVisible, 700), [])
 
     const onTitleChange = (event) => {
         setTitleValue(event.target.value);
@@ -72,7 +76,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onCancelClick = () => {
-        const QUESTION_BACKUP = JSON.parse(sessionStorage.getItem(`QUESTION-${id}_BACKUP`))
+
         setTitleValue(QUESTION_BACKUP.title)
         setOptions([...QUESTION_BACKUP.answers])
         setQuestionData({...QUESTION_BACKUP})
@@ -80,6 +84,8 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onSaveQuestionClick = async () => {
         await updateQuestion(questionData)
+        setIsAlertVisible(true)
+        debouncedHideAlert(false)
     }
 
     const onDeleteQuestionClick = async () => {
@@ -106,7 +112,8 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
-            const updatedOptions = [...options, {text: newOptionValue, isCorrect: false, _id: String(Math.random())}]
+
+            const updatedOptions = [...options, {text: newOptionValue, isCorrect: false, id: String(Math.random())}]
             setOptions(updatedOptions)
             setQuestionData({...questionData, answers: updatedOptions})
             setNewOptionValue('')
@@ -134,6 +141,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     return (
         <div className="mb-4">
+            <Alert variant="success" hidden={!isAlertVisible}>Вопрос успешно сохранен</Alert>
             <Accordion defaultActiveKey="0" className="mb-2">
                     <Accordion.Item eventKey="0" className="position-relative">
                         <Accordion.Header onClick={onAccordionOpen}>
@@ -173,7 +181,6 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                         }
                     </Accordion.Item>
             </Accordion>
-
         </div>
     )
 }
