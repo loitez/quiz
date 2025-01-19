@@ -55,7 +55,7 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
                 <Form.Check
                     type="radio"
                     label={correctAnswerLabel}
-                    id={`option-${option._id}`}
+                    id={`option-${option.id}`}
                     name={`option-${questionID}`}
                     className="option-set-correct-btn px-0"
                     onChange={onSetCorrectAnswerChange}

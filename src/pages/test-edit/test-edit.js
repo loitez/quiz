@@ -17,10 +17,11 @@ export const TestEdit = () => {
 
     useEffect(() => {
         getQuestions()
-            .then(({questions = []}) => {
+            .then((questions = []) => {
             setQuestions(questions);
             setIsLoading(false)
             setShouldRefreshQuestions(false)
+            console.log(questions)
         })
             .catch((err) => console.error(err))
 

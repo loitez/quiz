@@ -11,10 +11,11 @@ export const TestHistory = () => {
 
     return (
         <>
+            <div className="mb-3 fw-semibold" hidden={testHistory.length === 0}>История прохождений</div>
             {testHistory.length > 0 ? (
                 testHistory.map((item, index) => (
-                        <TestHistoryPanel key={index} index={index} item={item}/>
-                    ))
+                    <TestHistoryPanel key={index} index={index} item={item}/>
+                ))
             ) : (
                 <>
 
