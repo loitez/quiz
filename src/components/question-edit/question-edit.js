@@ -21,8 +21,6 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     useEffect(() => {
     }, [])
 
-    console.log(options)
-
     useEffect( () => {
         async function fetchQuestion() {
             console.log('refreshing')
@@ -94,17 +92,23 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     }
 
-    const onNewOptionAdd = () => {
+    const onAddNewOption = () => {
         setIsCreatingNewOption(true)
     }
 
-    const onCancelAddingOptionClick = () => {
+    const onNewOptionCancel = () => {
         setIsCreatingNewOption(false)
         setNewOptionValue('')
     }
 
-    const onNewOptionAddChange = (event) => {
+    const onNewOptionChange = (event) => {
         setNewOptionValue(event.target.value)
+    }
+
+    const onNewOptionAdd = (event) => {
+        if (event.key==='Enter' && event.target.value.trim() !== '') {
+            options.push({text: newOptionValue, isCorrect: false})
+        }
     }
 
     return (
@@ -117,11 +121,11 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                           onChange={onTitleChange}/>
                         </Accordion.Header>
                         <Accordion.Body>
-                            <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onNewOptionAdd} hidden={isCreatingNewOption}>+</Button>
+                            <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={onAddNewOption} hidden={isCreatingNewOption}>+</Button>
                             { isCreatingNewOption &&
                                 <div className="d-flex justify-content-center align-items-center">
-                                    <Form.Control className="mx-2 my-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionAddChange}/>
-                                    <Button variant="outline-dark ms-1" onClick={onCancelAddingOptionClick}>&times;</Button>
+                                    <Form.Control className="mx-2 my-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionChange} onKeyDown={onNewOptionAdd}/>
+                                    <Button variant="outline-dark ms-1" onClick={onNewOptionCancel}>&times;</Button>
                                 </div>
                             }
                             {options.length > 0 ? (options.map((option) => (
