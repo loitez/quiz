@@ -157,8 +157,8 @@ export const Test = () => {
                     { isEnded ? (
                         <>
                             <div className="mb-5">
-                                <div className="fs-2 fw-semibold">Правильных ответов:</div>
-                                <div>{correctAnswersCount}/{questionsCount}</div>
+                                <div className="fs-2 fw-semibold text-center">Правильных ответов:</div>
+                                <div className={`fs-2 text-center ${correctAnswersCount >= questionsCount/2 ? 'text-success' : 'text-danger'}`}>{correctAnswersCount}/{questionsCount}</div>
                             </div>
                             <div aria-label="Basic example" className="d-grid mb-3 gap-0 column-gap-3 d-md-flex">
                                 <Button variant="outline-dark" className="me-2 w-100" onClick={() => navigate('/')}>
