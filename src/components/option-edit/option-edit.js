@@ -3,6 +3,7 @@ import {useMemo, useState} from "react";
 import {deleteOption} from "../../api";
 import {Overlay} from "../overlay/overlay";
 import {debounce} from "../../utils";
+import {alignPropType} from "react-bootstrap/types";
 
 export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRefreshOptions, onDeleteOption}) => {
 
@@ -18,7 +19,7 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
 
     const onOptionChange = (event) => {
         setOptionValue(event.target.value)
-        onChange(event.target.value, option._id, event.target.checked)
+        onChange(event.target.value, option.id, event.target.checked)
     }
     const onSetCorrectAnswerChange = async (event) => {
         /*console.log(event.target)
@@ -27,7 +28,7 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
         console.log('setting correct answer')*/
         //await setCorrectAnswer(questionID, option._id)
         //sendValueToParent(option._id, )
-        onChange(optionValue, option._id, event.target.checked)
+        onChange(optionValue, option.id, event.target.checked)
         //event.target.setAttribute('checked', option.isCorrect)
         //setIsCorrect(option.isCorrect)
 
@@ -38,9 +39,10 @@ export const OptionEdit = ({option, questionID, onChange: onChange, setShouldRef
         //console.log(option._id)
         console.log('option-edit has been changed')
         setIsDeleting(true)
+        console.log(optionValue, option.id)
         setOptionValue('Удаляем вариант ответа...')
         //await deleteOption(questionID, option._id)
-        await onDeleteOption(option._id)
+        await onDeleteOption(option.id)
         await debouncedDeleteQuestion(false)
         //setShouldRefreshOptions(true)
     }

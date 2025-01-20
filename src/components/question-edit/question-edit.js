@@ -4,6 +4,7 @@ import {OptionEdit} from "../option-edit/option-edit";
 import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
 import {Overlay} from '../overlay/overlay'
+import { v4 as uuidv4 } from 'uuid';
 
 export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const {_id: id, answers, title} = question;
@@ -41,6 +42,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     useEffect(() => {
         if (options.length > 0 && !checkCorrectOptionExists(options)) {
+            console.log('no correct answer')
             autoSetCorrectOption(options)
         }
     }, [options])
@@ -57,11 +59,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onOptionChange = (optionValue, optionId, isOptionCorrect) => {
+        console.log('option clicked - ', optionValue, optionId, isOptionCorrect)
         if (isOptionCorrect) {
             questionData.answers.map((item) => item.isCorrect = false)
         }
         questionData.answers.map((item) => {
-            if (item._id === optionId) {
+            if (item.id === optionId) {
                 item.text = optionValue
                 item.isCorrect = isOptionCorrect
             }
@@ -114,7 +117,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const onNewOptionAdd = (event) => {
         if (event.key==='Enter' && event.target.value.trim() !== '') {
 
-            const updatedOptions = [...options, {text: newOptionValue, isCorrect: false, id: String(Math.random())}]
+            const updatedOptions = [...options, {id: uuidv4(), text: newOptionValue, isCorrect: false}]
             setOptions(updatedOptions)
             setQuestionData({...questionData, answers: updatedOptions})
             setNewOptionValue('')
@@ -122,7 +125,8 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onDeleteOption = (id) => {
-        const updatedOptions = options.filter((item) => item._id !== id)
+        console.log(id)
+        const updatedOptions = options.filter((item) => item.id !== id)
         debouncedDeleteOption(updatedOptions)
         setQuestionData({...questionData, answers: updatedOptions})
     }
@@ -142,9 +146,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
 
     return (
         <div className="mb-4">
-            <Alert variant="success" hidden={!isAlertVisible}>Вопрос успешно сохранен</Alert>
+            {isAlertVisible && <Alert variant="success">Вопрос успешно сохранен</Alert>}
             <Accordion defaultActiveKey="0" className="mb-2">
-                    <Accordion.Item eventKey="0" className="position-relative">
+                    <Accordion.Item eventKey="0" className={`position-relative ${isAlertVisible ? 'success-save' : ''}`}>
                         <Accordion.Header onClick={onAccordionOpen}>
                             <Form.Control className="mx-2" type="text" placeholder="Введите вопрос..."
                                           value={titleValue}
@@ -161,7 +165,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                                 }
                             </div>
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option._id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
+                                    <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
                                 ))) : (
                                 <div className="text-center mt-4">Нет вариантов ответа</div>
                             )}

@@ -1,9 +1,10 @@
-import {Accordion, Spinner} from "react-bootstrap";
+import {Accordion, Button, ButtonGroup, Spinner} from "react-bootstrap";
 import styled from "styled-components";
 import {useEffect, useState} from "react";
 import {getQuestions} from "../../api";
 import {NoQuestionsFound, QuestionEdit} from "../../components";
 import {alignPropType} from "react-bootstrap/types";
+import {Link} from "react-router-dom";
 
 const TestEditContainer = styled.div`
     width: 600px;
@@ -37,6 +38,14 @@ export const TestEdit = () => {
                 ) : (
                      questions.length > 0 ? (
                             <TestEditContainer>
+                                <ButtonGroup aria-label="Basic example" className="mb-4 grid gap-0 column-gap-3 w-100">
+                                    <Link to="/" className="w-100">
+                                        <Button variant="outline-dark" className="me-2 w-100">На главную</Button>
+                                    </Link>
+                                    <Link to="/test" className="w-100">
+                                        <Button variant="outline-dark" className="me-2 w-100">Запустить тест</Button>
+                                    </Link>
+                                </ButtonGroup>
                                 { questions.map((question) => (
                                     <QuestionEdit key={question._id} question={question} setShouldRefreshQuestions={setShouldRefreshQuestions}/>
                                 ))}

@@ -89,3 +89,6 @@ code {
 button[disabled] {
   cursor: not-allowed;
 }
+.success-save {
+  box-shadow: 0 0 10px 2px rgba(28, 142, 15, 0.35);
+}
