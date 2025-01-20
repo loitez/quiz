@@ -19,7 +19,7 @@ export const TestHistoryPanel = ({index, item}) => {
 
     return (
         <div>
-            <div className="mb-3 fw-semibold">История прохождений</div>
+
             <div
                 className="border border-black rounded rounded-4 d-flex justify-content-between align-items-center p-3 mb-3">
                 <div className="date-info">
