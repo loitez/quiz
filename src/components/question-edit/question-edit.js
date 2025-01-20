@@ -1,11 +1,12 @@
 import {Accordion, Alert, Button, Form} from "react-bootstrap";
-import {use, useEffect, useMemo, useState} from "react";
+import {use, useEffect, useMemo, useState, useRef} from "react";
 import {OptionEdit} from "../option-edit/option-edit";
 import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
 import {Overlay} from '../overlay/overlay'
 import { v4 as uuidv4 } from 'uuid';
 import {alignPropType} from "react-bootstrap/types";
+import {validateQuestion} from "../../validators";
 
 export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuestion}) => {
     const {_id: id, answers, title} = question;
@@ -21,6 +22,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     const [newOptionValue, setNewOptionValue] = useState('')
     const [isAlertVisible, setIsAlertVisible] = useState(false)
     const [alertVariant, setAlertVariant] = useState(null)
+    const [errorMessage, setErrorMessage] = useState('')
+
+    const titleRef = useRef(null)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
@@ -89,6 +93,14 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     }
 
     const onSaveQuestionClick = async () => {
+        const {error} = validateQuestion(questionData)
+        if (error) {
+            titleRef.current.focus()
+            console.log('client error')
+            setErrorMessage(error)
+            return
+        }
+
         let response = await updateQuestion(questionData)
         if (response.error) {
             console.log(response.error)
@@ -183,7 +195,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
                             <Form.Control className="mx-2" type="text" placeholder="Введите вопрос..."
                                           value={titleValue}
                                           onChange={onTitleChange}
-                                          required />
+                                          required ref={titleRef}/>
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
