@@ -25,12 +25,8 @@ async function removeQuestion(id) {
 }
 
 async function updateQuestion(id, data) {
-    try {
-        await Quiz.updateOne({_id:id}, data)
-        await Quiz.findOneAndUpdate({_id: id}, {answers: data.answers}, {new: true})
-    } catch (err) {
-        console.error(err)
-    }
+    await Quiz.updateOne({_id:id}, data)
+    await Quiz.findOneAndUpdate({_id: id}, {answers: data.answers}, {new: true})
 }
 
 module.exports = {

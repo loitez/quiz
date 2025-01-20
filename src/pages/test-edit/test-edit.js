@@ -5,6 +5,7 @@ import {getQuestions} from "../../api";
 import {NoQuestionsFound, QuestionEdit} from "../../components";
 import {alignPropType} from "react-bootstrap/types";
 import {Link} from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 const TestEditContainer = styled.div`
     width: 600px;
@@ -28,6 +29,16 @@ export const TestEdit = () => {
 
     }, [shouldRefreshQuestions]);
 
+    const onAddNewQuestionClick = () => {
+        const newQuestion = {
+            id: uuidv4(),
+            title: '',
+            answers: [{id: uuidv4(), text: '', isCorrect: true}]
+        }
+        setQuestions([...questions, newQuestion])
+        console.log(newQuestion)
+    }
+
     return (
         <>
             {
@@ -46,8 +57,9 @@ export const TestEdit = () => {
                                         <Button variant="outline-dark" className="me-2 w-100">Запустить тест</Button>
                                     </Link>
                                 </ButtonGroup>
+                                <Button variant="primary" className="me-2 w-100 mb-4" onClick={onAddNewQuestionClick}>Добавить вопрос</Button>
                                 { questions.map((question) => (
-                                    <QuestionEdit key={question._id} question={question} setShouldRefreshQuestions={setShouldRefreshQuestions}/>
+                                    <QuestionEdit key={question.id} question={question} setShouldRefreshQuestions={setShouldRefreshQuestions}/>
                                 ))}
                             </TestEditContainer>
                         ) : (

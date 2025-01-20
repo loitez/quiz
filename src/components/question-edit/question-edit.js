@@ -5,6 +5,7 @@ import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
 import {Overlay} from '../overlay/overlay'
 import { v4 as uuidv4 } from 'uuid';
+import {alignPropType} from "react-bootstrap/types";
 
 export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const {_id: id, answers, title} = question;
@@ -19,6 +20,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
     const [isAlertVisible, setIsAlertVisible] = useState(false)
+    const [alertVariant, setAlertVariant] = useState(null)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
@@ -51,6 +53,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
     const debouncedDeleteOption = useMemo(() => debounce(setOptions, 700), [])
     const debouncedHideAlert = useMemo(() => debounce(setIsAlertVisible, 700), [])
+    const debouncedResetAlertVariant = useMemo(() => debounce(setAlertVariant, 700), [])
 
     const onTitleChange = (event) => {
         setTitleValue(event.target.value);
@@ -86,9 +89,15 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onSaveQuestionClick = async () => {
-        await updateQuestion(questionData)
-        setIsAlertVisible(true)
-        debouncedHideAlert(false)
+        let response = await updateQuestion(questionData)
+        if (response.error) {
+            console.log(response.error)
+            showAndHideAlert("danger")
+           return
+        }
+        showAndHideAlert("success")
+        console.log(response)
+
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
     }
 
@@ -143,16 +152,27 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
         setOptions([firstElement, ...updatedOptions])
     }
 
+    const showAndHideAlert = (variant) => {
+        setAlertVariant(variant)
+        setIsAlertVisible(true)
+        debouncedHideAlert(false)
+        debouncedResetAlertVariant('')
+    }
+
 
     return (
         <div className="mb-4">
-            {isAlertVisible && <Alert variant="success">Вопрос успешно сохранен</Alert>}
+            {isAlertVisible && <Alert variant={alertVariant}>{
+                alertVariant === "success" ? "Вопрос успешно сохранен" : "Что-то пошло не так"
+
+            }</Alert>}
             <Accordion defaultActiveKey="0" className="mb-2">
-                    <Accordion.Item eventKey="0" className={`position-relative ${isAlertVisible ? 'success-save' : ''}`}>
+                    <Accordion.Item eventKey="0" className={`position-relative ${alertVariant === 'success' && "success-save"} ${alertVariant === "danger" && "error-save"}`}>
                         <Accordion.Header onClick={onAccordionOpen}>
                             <Form.Control className="mx-2" type="text" placeholder="Введите вопрос..."
                                           value={titleValue}
-                                          onChange={onTitleChange}/>
+                                          onChange={onTitleChange}
+                                          required />
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
@@ -172,7 +192,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
                             <div className="buttons d-flex justify-content-between align-items-center mt-4">
                                 <Button variant="light"
                                         className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>
-                                <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick}>Сохранить</Button>
+                                <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick} type="submit">Сохранить</Button>
                                 <Button variant="danger" className="w-100" onClick={onDeleteQuestionClick}>Удалить
                                     вопрос</Button>
                             </div>

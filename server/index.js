@@ -37,8 +37,13 @@ app.delete('/questions/:id', async (req, res) => {
 })
 
 app.put('/questions/:id', async (req, res) => {
-    await updateQuestion(req.params.id, req.body)
-    res.sendStatus(200)
+    try {
+        let response = await updateQuestion(req.params.id, req.body)
+        res.sendStatus(200)
+    } catch (err) {
+        res.status(400).json({error: err})
+        console.log(err)
+    }
 })
 
 mongoose.connect(`mongodb+srv://loitez:${adminPassword}@quiz.kyqzp.mongodb.net/quiz?retryWrites=true&w=majority&appName=Quiz`)
