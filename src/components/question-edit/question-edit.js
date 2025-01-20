@@ -7,7 +7,7 @@ import {Overlay} from '../overlay/overlay'
 import { v4 as uuidv4 } from 'uuid';
 import {alignPropType} from "react-bootstrap/types";
 
-export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
+export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuestion}) => {
     const {_id: id, answers, title} = question;
 
     const [titleValue, setTitleValue] = useState(title);
@@ -50,7 +50,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }, [options])
 
 
-    const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 700), [])
+    const debouncedDeleteQuestion = useMemo(() => debounce(setIsDeleting, 800), [])
     const debouncedDeleteOption = useMemo(() => debounce(setOptions, 700), [])
     const debouncedHideAlert = useMemo(() => debounce(setIsAlertVisible, 700), [])
     const debouncedResetAlertVariant = useMemo(() => debounce(setAlertVariant, 700), [])
@@ -102,15 +102,26 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions}) => {
     }
 
     const onDeleteQuestionClick = async () => {
-
+        console.log(questionData)
+        let idForDeleting = question._id || question.id
+        let isInDb = !!question._id
+        console.log(isInDb)
+        onDeleteQuestion(isInDb, idForDeleting)
+        /*if (question._id) {
+            try {
+                await deleteQuestion(id)
+            } catch (err) {
+                console.error(err)
+            }
+        }*/
         setIsDeleting(true)
-        try {
-            await deleteQuestion(id)
-        } catch (err) {
-            console.error(err)
-        }
+
         await debouncedDeleteQuestion(false)
-        setShouldRefreshQuestions(true)
+        /*if (question._id) {
+            setShouldRefreshQuestions(true)
+        }*/
+
+
 
     }
 

@@ -5,6 +5,10 @@ const QuizSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    id: {
+        type: String,
+        required: true
+    },
     answers: [{text: {type: String, required: true}, isCorrect: {type: Boolean, required: true}, id: {type: String, required: true}}]
 })
 

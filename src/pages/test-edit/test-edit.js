@@ -1,11 +1,12 @@
 import {Accordion, Button, ButtonGroup, Spinner} from "react-bootstrap";
 import styled from "styled-components";
-import {useEffect, useState} from "react";
-import {getQuestions} from "../../api";
+import {useEffect, useMemo, useState} from "react";
+import {deleteQuestion, getQuestions} from "../../api";
 import {NoQuestionsFound, QuestionEdit} from "../../components";
 import {alignPropType} from "react-bootstrap/types";
 import {Link} from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
+import {debounce} from "../../utils";
 
 const TestEditContainer = styled.div`
     width: 600px;
@@ -16,11 +17,12 @@ export const TestEdit = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [shouldRefreshQuestions, setShouldRefreshQuestions] = useState(false)
 
+    const debouncedUpdateQuestions = useMemo(() => debounce(setQuestions, 800), []);
 
     useEffect(() => {
         getQuestions()
             .then((questions = []) => {
-            setQuestions(questions);
+            setQuestions([...questions]);
             setIsLoading(false)
             setShouldRefreshQuestions(false)
             console.log(questions)
@@ -37,6 +39,19 @@ export const TestEdit = () => {
         }
         setQuestions([...questions, newQuestion])
         console.log(newQuestion)
+    }
+
+    const onDeleteQuestion = async (isInDb, id) => {
+        if (isInDb) {
+            await deleteQuestion(id)
+        }
+        console.log(id)
+
+        let idSchema = id.includes('-')
+
+        let idForSearch = idSchema ? 'id' : '_id'
+        console.log(idForSearch)
+        debouncedUpdateQuestions([...questions.filter((item) => item[idForSearch] !== id)])
     }
 
     return (
@@ -57,10 +72,10 @@ export const TestEdit = () => {
                                         <Button variant="outline-dark" className="me-2 w-100">Запустить тест</Button>
                                     </Link>
                                 </ButtonGroup>
-                                <Button variant="primary" className="me-2 w-100 mb-4" onClick={onAddNewQuestionClick}>Добавить вопрос</Button>
                                 { questions.map((question) => (
-                                    <QuestionEdit key={question.id} question={question} setShouldRefreshQuestions={setShouldRefreshQuestions}/>
+                                    <QuestionEdit key={question.id} question={question} setShouldRefreshQuestions={setShouldRefreshQuestions} onDeleteQuestion={onDeleteQuestion}/>
                                 ))}
+                                <Button variant="primary" className="me-2 w-100 mb-4" onClick={onAddNewQuestionClick}>Добавить вопрос</Button>
                             </TestEditContainer>
                         ) : (
                             <NoQuestionsFound/>
