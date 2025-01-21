@@ -2,6 +2,7 @@ const fs = require('fs/promises');
 const chalk = require('chalk');
 const path = require('path');
 const Quiz = require('./models/Quiz');
+const mongoose = require('mongoose');
 
 async function getQuestions() {
     return Quiz.find()
@@ -25,8 +26,11 @@ async function removeQuestion(id) {
 }
 
 async function updateQuestion(id, data) {
-    await Quiz.updateOne({_id:id}, data)
-    await Quiz.findOneAndUpdate({_id: id}, {answers: data.answers}, {new: true})
+    if (!id) {
+        id = new mongoose.mongo.ObjectId()
+    }
+    await Quiz.findOneAndUpdate({_id:id}, {...data}, {new: true, upsert: true})
+    await Quiz.findOneAndUpdate({_id: id}, {answers: data.answers}, {new: true, upsert: true})
 }
 
 module.exports = {

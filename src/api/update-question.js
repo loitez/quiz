@@ -1,4 +1,5 @@
 export const updateQuestion = (questionData) => {
+    console.log(questionData)
         return fetch(`/questions/${questionData.id}`, {
             method: 'PUT',
             headers: {

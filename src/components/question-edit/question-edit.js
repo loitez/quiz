@@ -1,12 +1,13 @@
 import {Accordion, Alert, Button, Form} from "react-bootstrap";
-import {use, useEffect, useMemo, useState, useRef} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {OptionEdit} from "../option-edit/option-edit";
-import {deleteQuestion, getQuestionOptions, updateQuestion} from "../../api";
+import {getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
 import {Overlay} from '../overlay/overlay'
 import { v4 as uuidv4 } from 'uuid';
-import {alignPropType} from "react-bootstrap/types";
-import {validateQuestion} from "../../validators";
+import {Controller, useForm} from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuestion}) => {
     const {_id: id, answers, title} = question;
@@ -16,15 +17,35 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     const [questionData, setQuestionData] = useState(question);
     const [shouldRefreshOptions, setShouldRefreshOptions] = useState(false)
     const [options, setOptions] = useState(questionData.answers);
-    //const [questionBackup, setQuestionBackup] = useState(question)
-    //const [isCorrect, setIsCorrect] = useState()
     const [isCreatingNewOption, setIsCreatingNewOption] = useState(false)
     const [newOptionValue, setNewOptionValue] = useState('')
     const [isAlertVisible, setIsAlertVisible] = useState(false)
     const [alertVariant, setAlertVariant] = useState(null)
-    const [errorMessage, setErrorMessage] = useState('')
 
-    const titleRef = useRef(null)
+
+    const validationSchema = yup.object()
+        .shape({
+            title: yup
+                .string()
+                .required('Обязательное поле')
+        })
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: {errors},
+    } = useForm({
+        defaultValues: {
+            title: titleValue,
+        },
+        resolver: yupResolver(validationSchema)
+    })
+
+
+    const titleError = errors.title?.message
+
+    let hasError = !!(titleError)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
@@ -60,6 +81,7 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     const debouncedResetAlertVariant = useMemo(() => debounce(setAlertVariant, 700), [])
 
     const onTitleChange = (event) => {
+        console.log('title change')
         setTitleValue(event.target.value);
         questionData.title = event.target.value;
         setQuestionData(questionData);
@@ -92,17 +114,12 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
         setQuestionData({...QUESTION_BACKUP})
     }
 
-    const onSaveQuestionClick = async () => {
-        const {error} = validateQuestion(questionData)
-        if (error) {
-            titleRef.current.focus()
-            console.log('client error')
-            setErrorMessage(error)
-            return
-        }
+    const onSaveQuestionClick = async (event) => {
+
+        console.log('clicked')
 
         let response = await updateQuestion(questionData)
-        if (response.error) {
+        if (response?.error) {
             console.log(response.error)
             showAndHideAlert("danger")
            return
@@ -189,13 +206,23 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
                 alertVariant === "success" ? "Вопрос успешно сохранен" : "Что-то пошло не так"
 
             }</Alert>}
-            <Accordion defaultActiveKey="0" className="mb-2">
+            <form onSubmit={handleSubmit(onSaveQuestionClick)}>
+                <Accordion defaultActiveKey="0" className="mb-2">
                     <Accordion.Item eventKey="0" className={`position-relative ${alertVariant === 'success' && "success-save"} ${alertVariant === "danger" && "error-save"}`}>
                         <Accordion.Header onClick={onAccordionOpen}>
+                            {titleError && <p>{titleError}</p>}
+
+                           {/* <Controller control={control} name="title" render={({field: {titleValue, onTitleChange}}) => (
+
+                            )}>
+
+                            </Controller>*/}
+
                             <Form.Control className="mx-2" type="text" placeholder="Введите вопрос..."
-                                          value={titleValue}
-                                          onChange={onTitleChange}
-                                          required ref={titleRef}/>
+                                          {...register('title', {onChange: onTitleChange, value: titleValue})}
+                            />
+
+
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
@@ -208,14 +235,14 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
                                 }
                             </div>
                             {options.length > 0 ? (options.map((option) => (
-                                    <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
-                                ))) : (
+                                <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
+                            ))) : (
                                 <div className="text-center mt-4">Нет вариантов ответа</div>
                             )}
                             <div className="buttons d-flex justify-content-between align-items-center mt-4">
                                 <Button variant="light"
                                         className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>
-                                <Button variant="success" className="w-100 me-2" onClick={onSaveQuestionClick} type="submit">Сохранить</Button>
+                                <Button variant="success" className="w-100 me-2" type="submit">Сохранить</Button>
                                 <Button variant="danger" className="w-100" onClick={onDeleteQuestionClick}>Удалить
                                     вопрос</Button>
                             </div>
@@ -228,7 +255,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
 
                         }
                     </Accordion.Item>
-            </Accordion>
+                </Accordion>
+            </form>
+
         </div>
     )
 }

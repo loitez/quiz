@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const {Types} = require("mongoose");
 
 const QuizSchema = mongoose.Schema({
+    _id: {type: Types.ObjectId, default: () => new Types.ObjectId, required: true},
     title: {
         type: String,
         required: true

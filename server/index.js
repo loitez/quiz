@@ -38,7 +38,7 @@ app.delete('/questions/:id', async (req, res) => {
 
 app.put('/questions/:id', async (req, res) => {
     try {
-        let response = await updateQuestion(req.params.id, req.body)
+        await updateQuestion(req.body._id, req.body);
         res.sendStatus(200)
     } catch (err) {
         res.status(400).json({error: err})
