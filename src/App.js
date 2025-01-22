@@ -5,7 +5,6 @@ import './index.css'
 
 const Page = styled.div`
     min-height: 100vh;
-    min-width: 100vw;
     margin-top: 40px;
 `
 

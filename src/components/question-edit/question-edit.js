@@ -5,7 +5,7 @@ import {getQuestionOptions, updateQuestion} from "../../api";
 import {debounce} from "../../utils";
 import {Overlay} from '../overlay/overlay'
 import { v4 as uuidv4 } from 'uuid';
-import {Controller, useForm} from 'react-hook-form'
+import {Controller, useFieldArray, useForm} from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
@@ -27,7 +27,21 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
         .shape({
             title: yup
                 .string()
-                .required('Обязательное поле')
+                .required('Введите текст вопроса'),
+            options: yup.array().of(
+                yup.object().shape({
+                    text: yup.string().required('Поле обязательно для заполнения')
+                })
+            ).test("at-least-one-filled", "Должен быть хотя бы один вариант ответа", (options) => {
+                return options.some(option => option.text.trim() !== '');
+            })
+           /* options: yup.array().of(
+                yup.object().shape({
+                    optionTitle: yup
+                        .string()
+                        .required('Введите текст варианта ответа')
+                })
+            ).required('Хотя бы один вариант ответа')*/
         })
 
     const {
@@ -38,14 +52,24 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     } = useForm({
         defaultValues: {
             title: titleValue,
+            options: question.answers,
         },
         resolver: yupResolver(validationSchema)
     })
 
+    const { fields, append, remove, move  } = useFieldArray({
+        control,
+        name: 'options'
+    });
+
 
     const titleError = errors.title?.message
 
-    let hasError = !!(titleError)
+    const optionTitleError = errors.optionTitle?.message
+
+    const anyError = errors
+
+    let hasError = !!(titleError || optionTitleError)
 
     useEffect(() => {
         sessionStorage.setItem(`QUESTION-${id}_BACKUP`, JSON.stringify(question));
@@ -199,46 +223,65 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
         debouncedResetAlertVariant('')
     }
 
+    console.log(errors)
+
 
     return (
         <div className="mb-4">
             {isAlertVisible && <Alert variant={alertVariant}>{
                 alertVariant === "success" ? "Вопрос успешно сохранен" : "Что-то пошло не так"
-
             }</Alert>}
             <form onSubmit={handleSubmit(onSaveQuestionClick)}>
                 <Accordion defaultActiveKey="0" className="mb-2">
                     <Accordion.Item eventKey="0" className={`position-relative ${alertVariant === 'success' && "success-save"} ${alertVariant === "danger" && "error-save"}`}>
-                        <Accordion.Header onClick={onAccordionOpen}>
-                            {titleError && <p>{titleError}</p>}
-
-                           {/* <Controller control={control} name="title" render={({field: {titleValue, onTitleChange}}) => (
-
-                            )}>
-
-                            </Controller>*/}
-
+                        <Accordion.Header onClick={onAccordionOpen} className={`position-relative ${titleError && "error-wrapper"}`}>
                             <Form.Control className="mx-2" type="text" placeholder="Введите вопрос..."
                                           {...register('title', {onChange: onTitleChange, value: titleValue})}
                             />
-
-
+                            {errors.title && <p className="error">{errors.title.message}</p>}
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
                                 <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={() => setIsCreatingNewOption(true)} hidden={isCreatingNewOption}>+</Button>
                                 { isCreatingNewOption &&
                                     <div className="d-flex justify-content-center align-items-center">
-                                        <Form.Control className="mx-2" type="text" placeholder="Введите вариант ответа..." autoFocus value={newOptionValue} onChange={onNewOptionChange} onKeyDown={onNewOptionAdd}/>
+                                        <Form.Control className="mx-2" type="text" placeholder="Введите вариант ответа..." autoFocus
+                                                      {...register('optionTitle', {onChange: onNewOptionChange, onKeyDown: onNewOptionAdd, value: newOptionValue})}
+                                        />
                                         <Button variant="outline-dark ms-1" onClick={onNewOptionCancel}>&times;</Button>
                                     </div>
                                 }
                             </div>
-                            {options.length > 0 ? (options.map((option) => (
-                                <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
-                            ))) : (
+
+
+                            {options.length > 0 ?
+
+                                <Controller
+
+                                    control={control}
+                                    name="options"
+                                    render={({ field: { onChange: onOptionChange } }) => (
+                                    <>
+                                        {options.map((option, index) => (
+                                            <div key={index}>
+                                                <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
+
+                                            </div>
+                                        ))}
+
+                                    </>
+
+                                )}
+                                ></Controller>
+
+                                : (
                                 <div className="text-center mt-4">Нет вариантов ответа</div>
                             )}
+                            <div>
+                                {errors.options && errors.options?.message && (
+                                    <p className="option-error">{errors.options?.message}</p>
+                                )}
+                            </div>
                             <div className="buttons d-flex justify-content-between align-items-center mt-4">
                                 <Button variant="light"
                                         className="border-1 border-secondary w-100 me-2" onClick={onCancelClick}>Отменить</Button>

@@ -95,3 +95,20 @@ button[disabled] {
 .error-save {
   box-shadow: 0 0 10px 2px rgba(161, 0, 0, 0.62);
 }
+.error-wrapper > .accordion-button[aria-expanded="true"] {
+  padding-bottom: 27px;
+}
+.error-wrapper > .accordion-button[aria-expanded="true"] > .error {
+  position: absolute;
+  left: 30px;
+  bottom: 5px;
+  margin-bottom: 0;
+  font-size: 14px;
+  color: #dc3545;
+}
+.option-error {
+  margin-bottom: 0;
+  font-size: 14px;
+  color: #dc3545;
+  margin-left: .5rem;
+}
