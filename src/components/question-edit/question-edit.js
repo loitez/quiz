@@ -66,6 +66,9 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     const titleError = errors.title?.message
 
     const optionTitleError = errors.optionTitle?.message
+    console.log(errors.options)
+    const optionsError = errors.options?.message
+    const optionTextError = errors.optons[0]?.text?.message
 
     const anyError = errors
 
@@ -188,13 +191,11 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
     }
 
     const onNewOptionAdd = (event) => {
-        if (event.key==='Enter' && event.target.value.trim() !== '') {
-
-            const updatedOptions = [...options, {id: uuidv4(), text: newOptionValue, isCorrect: false}]
-            setOptions(updatedOptions)
-            setQuestionData({...questionData, answers: updatedOptions})
-            setNewOptionValue('')
-        }
+        const updatedOptions = [...options, {id: uuidv4(), text: newOptionValue, isCorrect: false}]
+        setOptions(updatedOptions)
+        setQuestionData({...questionData, answers: updatedOptions})
+        setNewOptionValue('')
+        setIsCreatingNewOption(false)
     }
 
     const onDeleteOption = (id) => {
@@ -242,13 +243,24 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
                         </Accordion.Header>
                         <Accordion.Body>
                             <div className="mb-2">
-                                <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа" onClick={() => setIsCreatingNewOption(true)} hidden={isCreatingNewOption}>+</Button>
+                                <Button className="w-100 mx-2" variant="outline-dark" title="Добавить вариант ответа"
+                                        onClick={() => setIsCreatingNewOption(true)} hidden={isCreatingNewOption}>
+                                    <i className="bi bi-plus-lg"></i>
+                                </Button>
                                 { isCreatingNewOption &&
                                     <div className="d-flex justify-content-center align-items-center">
                                         <Form.Control className="mx-2" type="text" placeholder="Введите вариант ответа..." autoFocus
-                                                      {...register('optionTitle', {onChange: onNewOptionChange, onKeyDown: onNewOptionAdd, value: newOptionValue})}
+                                                      {...register('optionTitle', {onChange: onNewOptionChange, value: newOptionValue})}
                                         />
-                                        <Button variant="outline-dark ms-1" onClick={onNewOptionCancel}>&times;</Button>
+                                        <div className="buttons option-edit-buttons d-flex justify-content-between align-items-center">
+                                            <Button variant="outline-dark me-1" onClick={onNewOptionAdd} title="Добавить вариант ответа">
+                                                <i className="bi bi-arrow-down"></i>
+                                            </Button>
+                                            <Button variant="outline-dark ms-2" onClick={onNewOptionCancel} title="Закрыть режим добавления варианта ответа">
+                                                <i className="bi bi-x-lg"></i>
+                                            </Button>
+                                        </div>
+
                                     </div>
                                 }
                             </div>
@@ -256,30 +268,19 @@ export const QuestionEdit = ({question, setShouldRefreshQuestions, onDeleteQuest
 
                             {options.length > 0 ?
 
-                                <Controller
+                                options.map((option, index) => (
+                                        <div key={index}>
+                                            <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption} {...register(`options.${index}.text`)}/>
 
-                                    control={control}
-                                    name="options"
-                                    render={({ field: { onChange: onOptionChange } }) => (
-                                    <>
-                                        {options.map((option, index) => (
-                                            <div key={index}>
-                                                <OptionEdit option={option} questionID={id} key={option.id} onChange={onOptionChange} setShouldRefreshOptions={setShouldRefreshOptions} onDeleteOption={onDeleteOption}/>
-
-                                            </div>
-                                        ))}
-
-                                    </>
-
-                                )}
-                                ></Controller>
+                                        </div>
+                                    ))
 
                                 : (
                                 <div className="text-center mt-4">Нет вариантов ответа</div>
                             )}
                             <div>
-                                {errors.options && errors.options?.message && (
-                                    <p className="option-error">{errors.options?.message}</p>
+                                {errors.options && optionsError && (
+                                    <p className="option-error">{optionsError}</p>
                                 )}
                             </div>
                             <div className="buttons d-flex justify-content-between align-items-center mt-4">
